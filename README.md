@@ -1,33 +1,31 @@
 ## Description
-Implementing a service to check a Github repository is popular or not by using Github REST API 
+Implementing a service to get the exchange rate BTC/USD from Alphavantage API  
 
 ## Assumptions
-1. use celery and redis broker to Asyc the API requests 
-1. Use third part package django-health-check for project health check, I tried to use google/Cadvisor
-but got error `Failed to create a Container Manager: could not detect clock speed from output` and took time to solve 
+1. use celery and redis broker to get the rate hourly
 
 ## Frameworks
 1. django == 3.1.7
-1. pytest == 6.2.2
 
 ## Libraries 
 1. requests
-1. djangorestframework
+1. djangorestframework 
+1. rest_framework_api_key
 1. django-celery-results
 1. django-celery-beat
 1. redis
-1. django-health-check 
+1. decouple
+
 
 ## Runtime Environment
 1. python 3.9.2
 1. docker
 1. docker compose
 1. environment variables: 
-   * GITHUB_API_URL
-   * GITHUB_API_USERNAME 
-   * GITHUB_API_PASSWORD
+   * ALPHAVANTAGE_API_KEY
+   * ALPHAVANTAGE_API_URL 
+   * ALPHAVANTAGE_API_URL_FUNCTION
    * REDIS_URL
-   * SOFT_TIME_LIMIT
 
 
 ## setup Locally 
@@ -62,10 +60,9 @@ but got error `Failed to create a Container Manager: could not detect clock spee
    > redis-server
 1. Run Celery
    * Open a terminal window, Run Celery with in your project root where manage.py lives:
-   > celery -A project.celery worker -l info
-1. run test
-   > pytest tests
+   > celery -A project.celery worker -l -B info
    
+1. Download Postgres
 
 ##  setup using Docker
 
@@ -74,28 +71,17 @@ but got error `Failed to create a Container Manager: could not detect clock spee
 1. Run `make image` to build fresh image of the app
 1. Now you have couple of options
    1. Run `make tests` to run tests against that image
-   1. Run `make dev-run` to run the image as a server and celery worker, open http://localhost:8000 (or your docker machine IP address) to play with it
+   1. Run `make dev-run` to run the image as a server and celery worker,
+      open http://127.0.0.1:8000/admin/rest_framework_api_key/apikey/add/ to create API key to be able to access the API's
+      open http://localhost:8000/api/v1/quotes (or your docker machine IP address) to play with it
+      
    1. If there is a hanging container you can always run `make dev-down` and/or `make services-down`
    1. Run `make help` to get some extra help, read Makefile to see what is going on behind the scenes
 
 ## How to use
-1. visit http://localhost:8000/api/check 
-1. enter owner and repo_name to the check if repo is popular or not 
-1. visit http://127.0.0.1:8000/ht/ for health check 
+1. open http://127.0.0.1:8000/admin/rest_framework_api_key/apikey/add/
+1. visit http://localhost:8000/api/v1/quotes/ to get latest rate from local DB
+1. Using post method http://localhost:8000/api/v1/quotes/ to run celery task to get price from Alphavantage API.
 
 
-## Helpers
-check if repo is popular or not depending on number of stars and number of forks
-* `check_repos_popularity`
-## API Reference
-
-
-[Checker API](https://documenter.getpostman.com/view/12150062/Tz5wWESL#6c0ea98d-94d2-44ba-9bef-2542a1b931dd)
-
-
-[Health Check API](https://documenter.getpostman.com/view/12150062/Tz5wWESL#e3d332a3-c8bd-4497-a9d1-47403f346d81)
-
-## My Improvements if I have time:
-1. manipulate more with the github API for example: check if the repo is forked or not 
-1. build a frontend interface
 
