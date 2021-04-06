@@ -1,0 +1,33 @@
+version: '3.9'
+services:
+  server:
+    image: coinmena
+    container_name: coinmena-server
+    command: [ "runserver" ]
+    environment:
+      DATABASE_URL: "postgres://postgres@postgres/coinmena"
+      REDIS_URL: "redis://redis:6379"
+      ENVIRONMENT: local
+      DEBUG: "true"
+    volumes:
+      - ../:/app/
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    external_links:
+      - redis:redis
+      - postgres:postgres
+  celery:
+    image: coinmena
+    container_name: coinmena-celery
+    environment:
+      DATABASE_URL: "postgres://postgres@postgres/coinmena"
+      ENVIRONMENT: local
+      DEBUG: "true"
+    command: [ "celery", "-B" ]
+    volumes:
+      - ../:/app/
+    external_links:
+      - redis:redis
+      - postgres:postgres

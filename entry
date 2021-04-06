@@ -1,0 +1,23 @@
+#!/bin/bash
+set -x
+action=$1
+shift
+
+case $action in
+
+  runserver)
+    (python manage.py migrate || exit 1 ) && python manage.py runserver 0.0.0.0:8000
+    ;;
+  test)
+    exec pytest "$@" tests
+    ;;
+  celery)
+    celery -A project.celery worker "$@" -l  INFO
+    ;;
+  celery-beat)
+    celery -A project.celery beat -l INFO "$@"
+    ;;
+  *)
+    exec $action "$@"
+    ;;
+esac
