@@ -1,15 +1,14 @@
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
 from project.apps.Currency.models import Currency
-
+from rest_framework_api_key.permissions import HasAPIKey
 from project.api.v1.serializer import ExchangeRateSerializer
 from project.api.tasks import get_exchange_rate
 
 
 class GetLastExchangeRate(GenericAPIView):
-    permission_classes = []
+    permission_classes = [HasAPIKey]
     serializer_class = ExchangeRateSerializer
 
     def get(self, *args, **kwargs):
